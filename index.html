@@ -1,3 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nine</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .brand-title {
+            color: #00a2ff;
+            text-decoration: underline;
+            font-size: 2.2rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+        .brand-title:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- หัวข้อ nine สีฟ้า ขีดเส้นใต้ พอกดแล้วเปิดไปที่ TikTok -->
+    <a href="https://www.tiktok.com/@niine909?_r=1&_t=ZS-98iK298iT0U" target="_blank" class="brand-title">nine</a>
+
+    <label for="codeInput">วางโค้ด Lua ของคุณที่นี่:</label>
+    <textarea id="codeInput" placeholder="-- วางสคริปต์ของคุณตรงนี้..."></textarea>
+
+    <button id="convertBtn" onclick="processConvert()">แปลงเป็น Loadstring ทันที</button>
+
+    <label for="codeOutput">ผลลัพธ์ (คัดลอกไปรันได้เลย):</label>
+    <textarea id="codeOutput" readonly placeholder="-- ลิงก์ Loadstring จะแสดงที่นี่"></textarea>
+
     <script>
     async function processConvert() {
         const inputCode = document.getElementById("codeInput");
@@ -19,7 +55,6 @@
         outputCode.style.color = "#66d9ef";
 
         try {
-            // สร้าง FormData ส่งให้ dpaste ตามรูปแบบที่รองรับ
             const formData = new FormData();
             formData.append("content", code);
             formData.append("syntax", "lua");
@@ -57,3 +92,5 @@
         }
     }
     </script>
+</body>
+</html>
