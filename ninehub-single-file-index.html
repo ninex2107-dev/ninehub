@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nine</title>
+
+    <style>
+        /* ตั้งค่าพื้นฐาน */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* หัวข้อ */
+        h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .brand-title {
+            color: #00a2ff;
+            text-decoration: underline;
+            font-size: 2.2rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .brand-title:hover {
+            opacity: 0.8;
+        }
+
+        /* ป้ายกำกับ */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            max-width: 600px;
+            color: #b0b0b0;
+        }
+
+        /* ช่องพิมพ์โค้ด */
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 150px;
+            background-color: #1a1a1a;
+            color: #76e0ff;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: vertical;
+            margin-bottom: 20px;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #0d8aeb;
+            outline: none;
+        }
+
+        /* ปุ่มกด */
+        button {
+            width: 100%;
+            max-width: 600px;
+            background-color: #0d8aeb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 25px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #0b76cc;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #333;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* ช่องแสดงผลลัพธ์ */
+        #codeOutput {
+            color: #4caf50;
+            cursor: not-allowed;
+            background-color: #0f0f0f;
+        }
+    </style>
+</head>
+<body>
+    <!-- กดชื่อ nine เพื่อเปิด TikTok -->
+    <a
+        href="https://www.tiktok.com/@niine909?_r=1&_t=ZS-98iK298iT0U"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="brand-title"
+    >nine</a>
+
+    <label for="codeInput">วางโค้ด Lua ของคุณที่นี่:</label>
+    <textarea id="codeInput" placeholder="-- วางสคริปต์ของคุณตรงนี้..."></textarea>
+
+    <button id="convertBtn" type="button">แปลงเป็น Loadstring ทันที</button>
+
+    <label for="codeOutput">ผลลัพธ์ (คัดลอกไปรันได้เลย):</label>
+    <textarea
+        id="codeOutput"
+        readonly
+        placeholder="-- ลิงก์ Loadstring จะแสดงที่นี่"
+    ></textarea>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const inputCode = document.getElementById("codeInput");
+            const outputCode = document.getElementById("codeOutput");
+            const convertBtn = document.getElementById("convertBtn");
+
+            if (!convertBtn || !inputCode || !outputCode) return;
+
+            convertBtn.addEventListener("click", async () => {
+                const code = inputCode.value.trim();
+
+                if (!code) {
+                    outputCode.value = "-- กรุณาวางโค้ด Lua ก่อนกดแปลง!";
+                    outputCode.style.color = "#ff4d4d";
+                    return;
+                }
+
+                const originalBtnText = convertBtn.innerText;
+                convertBtn.innerText = "กำลังแปลงและอัปโหลด...";
+                convertBtn.disabled = true;
+                outputCode.value = "-- กำลังเชื่อมต่อเซิร์ฟเวอร์...";
+                outputCode.style.color = "#66d9ef";
+
+                try {
+                    const response = await fetch("https://dpaste.com/api/v2/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            content: code,
+                            syntax: "lua",
+                            expiry_days: "365"
+                        })
+                    });
+
+                    if (response.ok) {
+                        const rawUrl = (await response.text()).trim() + ".txt";
+                        const finalLoadstring =
+                            `loadstring(game:HttpGet("${rawUrl}"))()`;
+
+                        outputCode.value = finalLoadstring;
+                        outputCode.style.color = "#4caf50";
+
+                        try {
+                            await navigator.clipboard.writeText(finalLoadstring);
+                            convertBtn.innerText = "คัดลอกแล้ว!";
+                        } catch (err) {
+                            convertBtn.innerText = "แปลงสำเร็จ!";
+                        }
+                    } else {
+                        outputCode.value =
+                            `-- เซิร์ฟเวอร์ขัดข้อง (Code: ${response.status})`;
+                        outputCode.style.color = "#ff4d4d";
+                    }
+                } catch (error) {
+                    outputCode.value = `-- เกิดข้อผิดพลาด: ${error.message}`;
+                    outputCode.style.color = "#ff4d4d";
+                } finally {
+                    setTimeout(() => {
+                        convertBtn.innerText = originalBtnText;
+                        convertBtn.disabled = false;
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
